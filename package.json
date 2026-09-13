@@ -13,7 +13,7 @@
     "icons": "node scripts/make-icons.mjs",
     "typecheck": "tsc --noEmit",
     "compile": "tsc",
-    "test": "tsc && node --test tests/",
+    "test": "tsc && node --test tests/*.test.mjs",
     "build": "node scripts/build.mjs",
     "verify": "npm run typecheck && npm test && npm run build"
   },
