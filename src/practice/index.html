@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--
+			The bridge marker. The content script stays completely inert unless a
+			page declares this element, so the extension can only ever insert code
+			into this practice environment (served locally from this repository).
+		-->
+		<meta name="dsa-practice-environment" content="controlled-practice-page" />
+		<title>Practice · DSA Practice Companion</title>
+		<link rel="stylesheet" href="practice.css" />
+	</head>
+	<body>
+		<header class="topbar">
+			<div class="topbar__brand">
+				<span class="topbar__mark" aria-hidden="true">&lt;/&gt;</span>
+				<div>
+					<h1 class="topbar__title">Practice environment</h1>
+					<p class="topbar__subtitle">Your own editor, your own code, running locally.</p>
+				</div>
+			</div>
+			<div class="topbar__controls">
+				<div class="field">
+					<label for="problem-select">Problem</label>
+					<select id="problem-select"></select>
+				</div>
+				<div class="field">
+					<label for="language-select">Language</label>
+					<select id="language-select"></select>
+				</div>
+			</div>
+		</header>
+
+		<p id="page-notice" class="notice" hidden></p>
+
+		<main class="layout">
+			<section class="panel problem" aria-labelledby="problem-title">
+				<div class="problem__head">
+					<h2 id="problem-title" class="problem__title"></h2>
+					<p class="badges">
+						<span id="problem-difficulty" class="badge"></span>
+						<span id="problem-category" class="badge badge--muted"></span>
+					</p>
+				</div>
+				<div id="problem-description" class="prose"></div>
+
+				<h3 class="section-heading">Examples</h3>
+				<div id="problem-examples" class="examples"></div>
+
+				<h3 class="section-heading">Constraints</h3>
+				<ul id="problem-constraints" class="constraints"></ul>
+
+				<h3 class="section-heading">Expected behaviour</h3>
+				<p id="problem-expected" class="prose"></p>
+
+				<h3 class="section-heading">Test cases</h3>
+				<ol id="problem-cases" class="cases"></ol>
+			</section>
+
+			<section class="panel workspace" aria-label="Code workspace">
+				<div class="toolbar" role="toolbar" aria-label="Editor actions">
+					<button id="run" class="btn btn--primary" type="button" title="Run the first test case (Ctrl+Enter)">
+						Run
+					</button>
+					<button id="test" class="btn" type="button" title="Run every test case (Ctrl+Shift+Enter)">
+						Test
+					</button>
+					<button id="reset" class="btn" type="button" title="Restore the starter code for this problem">
+						Reset
+					</button>
+					<button id="clear-code" class="btn" type="button" title="Empty the editor">Clear</button>
+					<button id="copy" class="btn" type="button" title="Copy the editor contents">Copy</button>
+				</div>
+
+				<div class="editor" id="editor-shell">
+					<div class="editor__gutter" id="gutter" aria-hidden="true"></div>
+					<div class="editor__stack">
+						<pre class="editor__highlight" id="highlight" aria-hidden="true"><code id="highlight-code"></code></pre>
+						<textarea
+							id="editor"
+							class="editor__input"
+							aria-label="Practice code editor"
+							spellcheck="false"
+							autocapitalize="off"
+							autocomplete="off"
+							wrap="off"
+						></textarea>
+					</div>
+				</div>
+				<p class="hint">
+					Tab indents · Ctrl+Enter runs the first case · Ctrl+Shift+Enter runs every case
+				</p>
+
+				<div class="timer">
+					<div class="timer__readout">
+						<p id="timer-display" class="timer__value">00:00</p>
+						<p id="timer-status" class="timer__status">No session yet</p>
+					</div>
+					<div class="timer__actions" role="group" aria-label="Practice timer">
+						<button id="timer-start" class="btn" type="button">Start</button>
+						<button id="timer-pause" class="btn" type="button">Pause</button>
+						<button id="timer-resume" class="btn" type="button">Resume</button>
+						<button id="timer-reset" class="btn" type="button">Reset</button>
+					</div>
+					<div class="timer__actions" role="group" aria-label="Record this attempt">
+						<button id="mark-solved" class="btn btn--success" type="button">Mark solved</button>
+						<button id="mark-failed" class="btn btn--danger" type="button">Mark failed</button>
+						<button id="mark-attempted" class="btn" type="button">Mark attempted</button>
+					</div>
+				</div>
+
+				<section class="output" aria-labelledby="output-heading">
+					<h3 id="output-heading" class="section-heading">Output</h3>
+					<div id="output" class="output__body" role="log" aria-live="polite"></div>
+				</section>
+			</section>
+		</main>
+
+		<div id="toast" class="toast-host"></div>
+
+		<!--
+			Code typed into the editor is executed in this sandboxed frame, which has
+			an opaque origin and no access to the chrome.* APIs. It is never visible.
+		-->
+		<iframe id="runner" class="runner-frame" src="runner.html" title="Sandboxed code runner"></iframe>
+
+		<script type="module" src="practice.js"></script>
+	</body>
+</html>

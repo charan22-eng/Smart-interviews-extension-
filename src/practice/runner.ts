@@ -15,45 +15,8 @@
  * and imported JSON is never sent to this frame.
  */
 
-import { describeValue, gradeCase, summarize, type CaseResult, type TestCase } from "./grading.js"
-
-export const RUNNER_CHANNEL = "dsa-practice-runner"
-
-export interface RunnerRequest {
-	channel: typeof RUNNER_CHANNEL
-	type: "run"
-	requestId: string
-	code: string
-	functionName: string
-	cases: TestCase[]
-}
-
-export interface RunnerResponse {
-	channel: typeof RUNNER_CHANNEL
-	type: "run-result"
-	requestId: string
-	ok: boolean
-	results: CaseResult[]
-	logs: string[]
-	summary: { total: number; passed: number; failed: number; allPassed: boolean }
-	error?: string
-}
-
-const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/
-
-function isRunnerRequest(value: unknown): value is RunnerRequest {
-	if (typeof value !== "object" || value === null) return false
-	const record = value as Record<string, unknown>
-	return (
-		record.channel === RUNNER_CHANNEL &&
-		record.type === "run" &&
-		typeof record.requestId === "string" &&
-		typeof record.code === "string" &&
-		typeof record.functionName === "string" &&
-		IDENTIFIER.test(record.functionName) &&
-		Array.isArray(record.cases)
-	)
-}
+import { describeValue, gradeCase, summarize } from "./grading.js"
+import { RUNNER_CHANNEL, isRunnerRequest, type RunnerRequest, type RunnerResponse } from "./protocol.js"
 
 function renderLogValue(value: unknown): string {
 	return typeof value === "string" ? value : describeValue(value)
@@ -92,23 +55,16 @@ function compile(
 	return candidate as (...args: unknown[]) => unknown
 }
 
-function respond(target: MessageEventSource, origin: string, response: RunnerResponse): void {
-	const destination = origin === "null" ? "*" : origin
-	;(target as Window).postMessage(response, destination)
-}
-
 function handle(request: RunnerRequest): RunnerResponse {
 	const logs: string[] = []
-	const base = {
-		channel: RUNNER_CHANNEL as typeof RUNNER_CHANNEL,
-		type: "run-result" as const,
+	const base: Pick<RunnerResponse, "channel" | "type" | "requestId"> = {
+		channel: RUNNER_CHANNEL,
+		type: "run-result",
 		requestId: request.requestId,
 	}
 	try {
 		const solution = compile(request.code, request.functionName, logs)
-		const results = request.cases.map((testCase) =>
-			gradeCase(testCase, (args) => solution(...args)),
-		)
+		const results = request.cases.map((testCase) => gradeCase(testCase, (args) => solution(...args)))
 		return { ...base, ok: true, results, logs, summary: summarize(results) }
 	} catch (error) {
 		return {
@@ -120,6 +76,13 @@ function handle(request: RunnerRequest): RunnerResponse {
 			error: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
 		}
 	}
+}
+
+function respond(target: MessageEventSource, origin: string, response: RunnerResponse): void {
+	// The embedding page has a normal chrome-extension origin; "null" would only
+	// appear if this frame were embedded by another sandboxed document.
+	const destination = origin === "null" ? "*" : origin
+	;(target as Window).postMessage(response, destination)
 }
 
 window.addEventListener("message", (event: MessageEvent<unknown>) => {
