@@ -1,8 +1,9 @@
 /**
  * Safe DOM helpers. The entire UI is built with createElement + textContent.
- * innerHTML / outerHTML / insertAdjacentHTML are never used anywhere in this
- * project, so snippet titles, code, notes, tags and imported data can never be
- * interpreted as markup or script.
+ * No raw-markup sink is used anywhere in this project (no assignment of HTML
+ * strings into the DOM and no adjacent-markup insertion), so snippet titles,
+ * code, notes, tags and imported data can never be interpreted as markup or
+ * script. The build script enforces this by scanning the compiled output.
  */
 
 type Attrs = Record<string, string | number | boolean | undefined>
