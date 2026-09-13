@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.zip
+
+# Generated icons (produced by `npm run icons` / `npm run build`)
+public/icons/*.png
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Environment / secrets - never commit these
+.env
+.env.*
+*.pem
+*.key
+*.p12
+secrets.json
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temp / coverage
+*.tmp
+.cache/
+coverage/

@@ -1,0 +1,23 @@
+{
+  "name": "dsa-practice-companion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Manifest V3 Chrome extension: personal DSA snippet manager, practice timer, statistics, and a self-hosted controlled practice editor.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "node scripts/build.mjs --clean",
+    "icons": "node scripts/make-icons.mjs",
+    "typecheck": "tsc --noEmit",
+    "compile": "tsc",
+    "test": "tsc && node --test tests/",
+    "build": "node scripts/build.mjs",
+    "verify": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

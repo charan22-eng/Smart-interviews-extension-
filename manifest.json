@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "DSA Practice Companion",
+  "version": "1.0.0",
+  "description": "Personal DSA snippet manager with a self-hosted practice editor, session timer, and statistics. Inserts code only into your own practice page.",
+  "minimum_chrome_version": "116",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
+  "background": {
+    "service_worker": "background/index.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "DSA Practice Companion",
+    "default_popup": "popup/popup.html"
+  },
+  "options_page": "options/options.html",
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["content/practice-bridge.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "open-snippet-manager": {
+      "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },
+      "description": "Open the snippet manager"
+    },
+    "open-practice": {
+      "suggested_key": { "default": "Ctrl+Shift+P", "mac": "Command+Shift+P" },
+      "description": "Open the controlled practice environment"
+    },
+    "insert-snippet": {
+      "suggested_key": { "default": "Alt+Shift+I", "mac": "Alt+Shift+I" },
+      "description": "Insert the selected snippet into the controlled practice editor"
+    }
+  },
+  "sandbox": {
+    "pages": ["practice/runner.html"]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src 'self'",
+    "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'none'; object-src 'none'"
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  }
+}
