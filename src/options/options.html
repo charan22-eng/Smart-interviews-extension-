@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>DSA Practice Companion - Snippet manager</title>
+		<link rel="stylesheet" href="options.css" />
+	</head>
+	<body>
+		<header class="head">
+			<div>
+				<h1 class="head__title">Snippet manager</h1>
+				<p class="head__subtitle">
+					Your solutions and templates, stored locally in this browser profile.
+				</p>
+			</div>
+			<button id="open-practice" class="btn" type="button">Open practice page</button>
+		</header>
+
+		<p id="loading" class="state state--loading">Loading your data…</p>
+		<p id="fatal" class="state state--error" hidden></p>
+
+		<main id="main" class="layout" hidden>
+			<!-- Left: list -->
+			<section class="panel" aria-label="Saved snippets">
+				<div class="row">
+					<button id="new-snippet" class="btn btn--primary" type="button">New solution</button>
+					<button id="new-template" class="btn" type="button">New template</button>
+				</div>
+
+				<label class="sr-only" for="search">Search snippets</label>
+				<input
+					id="search"
+					class="input"
+					type="search"
+					placeholder="Search title, code, explanation, notes, tags…"
+				/>
+
+				<div class="filters">
+					<label class="sr-only" for="filter-language">Language</label>
+					<select id="filter-language"></select>
+					<label class="sr-only" for="filter-difficulty">Difficulty</label>
+					<select id="filter-difficulty"></select>
+					<label class="sr-only" for="filter-category">Category</label>
+					<select id="filter-category"></select>
+					<label class="sr-only" for="filter-kind">Kind</label>
+					<select id="filter-kind"></select>
+					<label class="sr-only" for="filter-favorite">Favorites</label>
+					<select id="filter-favorite"></select>
+					<label class="sr-only" for="sort">Sort</label>
+					<select id="sort"></select>
+				</div>
+
+				<p id="count" class="hint"></p>
+				<ul id="list" class="list"></ul>
+				<p id="empty" class="state state--empty" hidden></p>
+			</section>
+
+			<!-- Right: editor + data tools -->
+			<div class="stack">
+				<section class="panel" aria-label="Snippet editor">
+					<h2 id="form-title" class="panel__title">New solution</h2>
+					<p id="form-meta" class="hint"></p>
+
+					<form id="form" novalidate>
+						<div class="field">
+							<label for="f-title">Title</label>
+							<input id="f-title" class="input" type="text" required maxlength="200" />
+						</div>
+
+						<div class="grid-3">
+							<div class="field">
+								<label for="f-language">Language</label>
+								<select id="f-language"></select>
+							</div>
+							<div class="field">
+								<label for="f-difficulty">Difficulty</label>
+								<select id="f-difficulty"></select>
+							</div>
+							<div class="field">
+								<label for="f-category">DSA category</label>
+								<select id="f-category"></select>
+							</div>
+						</div>
+
+						<div class="field">
+							<label for="f-code">Code</label>
+							<textarea id="f-code" class="input code" rows="16" spellcheck="false"></textarea>
+						</div>
+
+						<div class="field">
+							<label for="f-explanation">Explanation</label>
+							<textarea id="f-explanation" class="input" rows="3"></textarea>
+						</div>
+
+						<div class="grid-3">
+							<div class="field">
+								<label for="f-time">Time complexity</label>
+								<input id="f-time" class="input" type="text" placeholder="O(n)" />
+							</div>
+							<div class="field">
+								<label for="f-space">Space complexity</label>
+								<input id="f-space" class="input" type="text" placeholder="O(1)" />
+							</div>
+							<div class="field">
+								<label for="f-tags">Tags (comma separated)</label>
+								<input id="f-tags" class="input" type="text" placeholder="hashmap, one pass" />
+							</div>
+						</div>
+
+						<div class="field">
+							<label for="f-notes">Notes</label>
+							<textarea id="f-notes" class="input" rows="3"></textarea>
+						</div>
+
+						<label class="check"><input id="f-favorite" type="checkbox" /> Favorite</label>
+						<label class="check">
+							<input id="f-template" type="checkbox" /> Reusable template
+						</label>
+
+						<div class="row">
+							<button id="save" class="btn btn--primary" type="submit">Save</button>
+							<button id="cancel" class="btn" type="button">Reset form</button>
+							<button id="copy" class="btn" type="button">Copy code</button>
+							<button id="insert" class="btn" type="button">Insert into practice editor</button>
+							<button id="duplicate" class="btn" type="button">Duplicate</button>
+							<button id="delete" class="btn btn--danger" type="button">Delete</button>
+						</div>
+						<p id="form-error" class="state state--error" hidden></p>
+					</form>
+				</section>
+
+				<section class="panel" aria-label="Import and export">
+					<h2 class="panel__title">Import and export</h2>
+					<p class="hint">
+						Exported files are plain JSON. Imported files are parsed as data only and are
+						never executed.
+					</p>
+					<div class="row">
+						<button id="export" class="btn" type="button">Export JSON</button>
+					</div>
+					<div class="field">
+						<label for="import-file">Import file</label>
+						<input id="import-file" class="input" type="file" accept="application/json,.json" />
+					</div>
+					<div class="field">
+						<label for="import-mode">Import mode</label>
+						<select id="import-mode"></select>
+					</div>
+					<label class="check">
+						<input id="import-apply-settings" type="checkbox" /> Also apply settings from the file
+					</label>
+					<div class="row">
+						<button id="import-run" class="btn btn--primary" type="button">Import</button>
+					</div>
+					<ul id="import-summary" class="list list--plain"></ul>
+				</section>
+
+				<section class="panel" aria-label="Practice history">
+					<h2 class="panel__title">Practice history</h2>
+					<ul id="history-list" class="list list--plain"></ul>
+					<div class="row">
+						<button id="clear-history" class="btn btn--danger" type="button">Clear history</button>
+						<button id="reset-all" class="btn btn--danger" type="button">Erase all data</button>
+					</div>
+				</section>
+			</div>
+		</main>
+
+		<div id="toast" class="toast-host"></div>
+		<script type="module" src="options.js"></script>
+	</body>
+</html>
