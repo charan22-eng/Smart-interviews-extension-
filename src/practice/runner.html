@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Practice code runner (sandboxed)</title>
+	</head>
+	<body>
+		<!--
+			This page is declared as a sandboxed page in the manifest. It has an
+			opaque origin and no access to chrome.* APIs, so it can evaluate the
+			user's own practice code without reaching extension storage or any site.
+			It is never shown: the practice page embeds it in a hidden iframe and
+			talks to it with postMessage.
+		-->
+		<script type="module" src="runner.js"></script>
+	</body>
+</html>
