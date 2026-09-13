@@ -18,7 +18,8 @@ import { describeValue, formatArgs, type CaseResult, type TestCase } from "./gra
 import { insertIndent, lineCount, tokenize } from "./highlight.js"
 import { PROBLEMS, firstProblem, getProblem, isRunnable, starterCodeFor, type Problem } from "./problems.js"
 import { buildRunnerRequest, isRunnerResponse, type RunnerResponse } from "./protocol.js"
-import { buildPageAck, isPageEnvelope, validateInsertPayload, type InsertResult } from "../services/messaging.js"
+import { describeInsert, planInsert } from "./insert.js"
+import { buildPageAck, isPageEnvelope, type InsertResult } from "../services/messaging.js"
 import * as practiceTimer from "../services/timer.js"
 import { loadStore } from "../storage/repository.js"
 import { defaultSettings } from "../storage/schema.js"
@@ -340,31 +341,26 @@ async function execute(mode: "run" | "test"): Promise<void> {
 /* ---------- code insertion (the controlled target) ---------- */
 
 function applyInsert(rawPayload: unknown): InsertResult {
-	const check = validateInsertPayload(rawPayload)
-	if (!check.ok) {
-		toast(check.error, "error")
-		showError(`Insert rejected: ${check.error}`)
-		return { ok: false, error: check.error }
+	// All validation and text composition happens in the pure planInsert helper,
+	// which is unit tested in tests/insertion.test.mjs.
+	const plan = planInsert(rawPayload, editor.value, currentLanguage)
+	if (!plan.ok) {
+		toast(plan.error, "error")
+		showError(`Insert rejected: ${plan.error}`)
+		return { ok: false, error: plan.error }
 	}
-	const payload = check.payload
+	const payload = plan.payload
 
-	if (payload.language !== currentLanguage) {
+	if (plan.languageChanged) {
 		currentLanguage = payload.language
 		languageSelect.value = payload.language
 	}
 
-	if (payload.mode === "append" && editor.value.trim() !== "") {
-		const separator = editor.value.endsWith("\n") ? "\n" : "\n\n"
-		setEditorCode(editor.value + separator + payload.code)
-	} else {
-		setEditorCode(payload.code)
-	}
+	setEditorCode(plan.nextCode)
 
 	editor.focus()
 	toast(`Inserted "${payload.title}" into the practice editor.`, "success")
-	showPlaceholder(
-		`Inserted "${payload.title}" (${LANGUAGE_LABELS[payload.language]}, ${payload.mode}). Press Run or Test when you are ready.`,
-	)
+	showPlaceholder(describeInsert(payload, LANGUAGE_LABELS[payload.language]))
 	return { ok: true, target: "practice editor" }
 }
 
