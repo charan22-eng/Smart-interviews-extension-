@@ -82,6 +82,11 @@ export function validateInsertPayload(value: unknown): PayloadCheck {
 	if (!isLanguage(value.language)) {
 		return { ok: false, error: "Insert payload has an unsupported language." }
 	}
+	// Fail closed: an unrecognised mode is rejected rather than silently
+	// treated as "replace", which could otherwise discard the user's work.
+	if (value.mode !== undefined && value.mode !== "replace" && value.mode !== "append") {
+		return { ok: false, error: "Insert payload has an unsupported insert mode." }
+	}
 	const mode: InsertMode = value.mode === "append" ? "append" : "replace"
 	return {
 		ok: true,

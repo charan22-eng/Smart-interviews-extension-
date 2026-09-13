@@ -50,12 +50,22 @@ describe("popup -> background messages", () => {
 })
 
 describe("insert payload validation", () => {
-	it("accepts a valid snippet payload and normalises the mode", () => {
+	it("accepts a valid snippet payload and keeps both insert modes", () => {
 		const check = validateInsertPayload(payload)
 		assert.equal(check.ok, true)
 		assert.equal(check.payload.code, "print(1)")
-		assert.equal(validateInsertPayload({ ...payload, mode: "weird" }).payload.mode, "replace")
 		assert.equal(validateInsertPayload({ ...payload, mode: "append" }).payload.mode, "append")
+		assert.equal(validateInsertPayload({ ...payload, mode: "replace" }).payload.mode, "replace")
+	})
+
+	it("defaults an omitted mode to replace but rejects an unknown one", () => {
+		const { mode, ...withoutMode } = payload
+		assert.equal(validateInsertPayload(withoutMode).payload.mode, "replace")
+		// Fail closed: an unrecognised mode must not be guessed, because guessing
+		// "replace" would discard whatever the user already had in the editor.
+		const weird = validateInsertPayload({ ...payload, mode: "weird" })
+		assert.equal(weird.ok, false)
+		assert.match(weird.error, /unsupported insert mode/)
 	})
 
 	it("rejects empty code with a user-facing message", () => {
