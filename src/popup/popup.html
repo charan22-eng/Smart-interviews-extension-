@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>DSA Practice Companion</title>
+		<link rel="stylesheet" href="popup.css" />
+	</head>
+	<body>
+		<header class="head">
+			<div class="head__brand">
+				<span class="head__mark" aria-hidden="true">&lt;/&gt;</span>
+				<div>
+					<h1 class="head__title">DSA Practice Companion</h1>
+					<p class="head__subtitle">Your own snippets, your own practice page.</p>
+				</div>
+			</div>
+		</header>
+
+		<nav class="nav" aria-label="Sections">
+			<button class="nav__btn" type="button" data-view="dashboard" aria-pressed="true">Dashboard</button>
+			<button class="nav__btn" type="button" data-view="snippets" aria-pressed="false">Snippets</button>
+			<button class="nav__btn" type="button" data-view="practice" aria-pressed="false">Practice</button>
+			<button class="nav__btn" type="button" data-view="statistics" aria-pressed="false">Statistics</button>
+			<button class="nav__btn" type="button" data-view="settings" aria-pressed="false">Settings</button>
+		</nav>
+
+		<p id="loading" class="state state--loading">Loading your data…</p>
+		<p id="fatal" class="state state--error" hidden></p>
+
+		<main id="main" hidden>
+			<!-- Dashboard -->
+			<section id="view-dashboard" class="view">
+				<div class="tiles">
+					<div class="tile"><p class="tile__value" id="dash-snippets">0</p><p class="tile__label">Snippets</p></div>
+					<div class="tile"><p class="tile__value" id="dash-solved">0</p><p class="tile__label">Solved</p></div>
+					<div class="tile"><p class="tile__value" id="dash-attempted">0</p><p class="tile__label">Attempted</p></div>
+					<div class="tile"><p class="tile__value" id="dash-time">0m</p><p class="tile__label">Practice time</p></div>
+				</div>
+
+				<div class="card">
+					<h2 class="card__title">Selected snippet</h2>
+					<p id="dash-selected" class="card__body">Nothing selected yet.</p>
+					<div class="row">
+						<button id="dash-insert" class="btn btn--primary" type="button">Insert into practice editor</button>
+						<button id="dash-copy" class="btn" type="button">Copy code</button>
+					</div>
+				</div>
+
+				<div class="card">
+					<h2 class="card__title">Quick actions</h2>
+					<div class="row">
+						<button id="open-practice" class="btn" type="button">Open practice page</button>
+						<button id="open-manager" class="btn" type="button">Open snippet manager</button>
+					</div>
+					<p class="hint">
+						Shortcuts: Ctrl+Shift+S manager · Ctrl+Shift+P practice · Alt+Shift+I insert
+					</p>
+				</div>
+
+				<div class="card">
+					<h2 class="card__title">Recent sessions</h2>
+					<ul id="dash-recent" class="list list--plain"></ul>
+				</div>
+			</section>
+
+			<!-- Snippets -->
+			<section id="view-snippets" class="view" hidden>
+				<label class="sr-only" for="search">Search snippets</label>
+				<input id="search" class="input" type="search" placeholder="Search title, code, notes, tags…" />
+
+				<div class="filters">
+					<label class="sr-only" for="filter-language">Language</label>
+					<select id="filter-language"></select>
+					<label class="sr-only" for="filter-difficulty">Difficulty</label>
+					<select id="filter-difficulty"></select>
+					<label class="sr-only" for="filter-category">Category</label>
+					<select id="filter-category"></select>
+					<label class="sr-only" for="filter-kind">Kind</label>
+					<select id="filter-kind"></select>
+					<label class="sr-only" for="filter-favorite">Favorites</label>
+					<select id="filter-favorite"></select>
+					<label class="sr-only" for="sort">Sort</label>
+					<select id="sort"></select>
+				</div>
+
+				<p id="snippet-count" class="hint"></p>
+				<ul id="snippet-list" class="list"></ul>
+				<p id="snippet-empty" class="state state--empty" hidden></p>
+
+				<div id="preview" class="card" hidden>
+					<h2 id="preview-title" class="card__title"></h2>
+					<p id="preview-meta" class="card__meta"></p>
+					<pre class="code"><code id="preview-code"></code></pre>
+					<p id="preview-explanation" class="card__body"></p>
+					<div class="row">
+						<button id="copy-code" class="btn btn--primary" type="button">Copy</button>
+						<button id="insert-code" class="btn" type="button">Insert</button>
+						<button id="toggle-favorite" class="btn" type="button">Favorite</button>
+						<button id="duplicate-snippet" class="btn" type="button">Duplicate</button>
+						<button id="delete-snippet" class="btn btn--danger" type="button">Delete</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- Practice -->
+			<section id="view-practice" class="view" hidden>
+				<div class="card">
+					<h2 class="card__title">Timer</h2>
+					<p id="practice-timer" class="timer__value">00:00</p>
+					<p id="practice-timer-status" class="card__meta">No session yet</p>
+					<div class="row">
+						<button id="timer-pause" class="btn" type="button">Pause</button>
+						<button id="timer-resume" class="btn" type="button">Resume</button>
+						<button id="timer-reset" class="btn" type="button">Reset</button>
+					</div>
+					<div class="row">
+						<button id="mark-solved" class="btn btn--success" type="button">Solved</button>
+						<button id="mark-failed" class="btn btn--danger" type="button">Failed</button>
+						<button id="mark-attempted" class="btn" type="button">Attempted</button>
+					</div>
+				</div>
+
+				<div class="card">
+					<h2 class="card__title">Problems</h2>
+					<ul id="problem-list" class="list list--plain"></ul>
+					<button id="practice-open" class="btn btn--primary" type="button">Open practice page</button>
+				</div>
+			</section>
+
+			<!-- Statistics -->
+			<section id="view-statistics" class="view" hidden>
+				<div class="tiles">
+					<div class="tile"><p class="tile__value" id="stat-total">0</p><p class="tile__label">Problems</p></div>
+					<div class="tile"><p class="tile__value" id="stat-attempted">0</p><p class="tile__label">Attempted</p></div>
+					<div class="tile"><p class="tile__value" id="stat-solved">0</p><p class="tile__label">Solved</p></div>
+					<div class="tile"><p class="tile__value" id="stat-failed">0</p><p class="tile__label">Failed</p></div>
+					<div class="tile"><p class="tile__value" id="stat-time">0m</p><p class="tile__label">Total time</p></div>
+					<div class="tile"><p class="tile__value" id="stat-easy">0</p><p class="tile__label">Easy solved</p></div>
+					<div class="tile"><p class="tile__value" id="stat-medium">0</p><p class="tile__label">Medium solved</p></div>
+					<div class="tile"><p class="tile__value" id="stat-hard">0</p><p class="tile__label">Hard solved</p></div>
+				</div>
+				<div class="card">
+					<h2 class="card__title">Most practiced category</h2>
+					<p id="stat-category" class="card__body">No sessions yet.</p>
+				</div>
+				<div class="card">
+					<h2 class="card__title">Recent sessions</h2>
+					<ul id="stat-recent" class="list list--plain"></ul>
+				</div>
+			</section>
+
+			<!-- Settings -->
+			<section id="view-settings" class="view" hidden>
+				<div class="card">
+					<h2 class="card__title">Preferences</h2>
+					<div class="field"><label for="set-theme">Theme</label><select id="set-theme"></select></div>
+					<div class="field"><label for="set-language">Default language</label><select id="set-language"></select></div>
+					<div class="field"><label for="set-sort">Default sort</label><select id="set-sort"></select></div>
+					<div class="field">
+						<label for="set-insert-mode">Editor insert behaviour</label>
+						<select id="set-insert-mode"></select>
+					</div>
+					<div class="field">
+						<label for="set-tab-size">Editor tab size</label>
+						<input id="set-tab-size" class="input" type="number" min="1" max="8" step="1" />
+					</div>
+					<label class="check"><input id="set-confirm-delete" type="checkbox" /> Confirm before deleting</label>
+					<label class="check"><input id="set-timer-autostart" type="checkbox" /> Start the timer when a problem opens</label>
+					<div class="field">
+						<label for="set-practice-origin">Locally served practice origin (optional)</label>
+						<input id="set-practice-origin" class="input" type="text" placeholder="http://localhost:5173" />
+					</div>
+					<button id="save-settings" class="btn btn--primary" type="button">Save settings</button>
+				</div>
+
+				<div class="card">
+					<h2 class="card__title">Your data</h2>
+					<p class="card__body">
+						Everything is stored locally in this browser profile. Nothing is uploaded anywhere.
+					</p>
+					<div class="row">
+						<button id="export-data" class="btn" type="button">Export JSON</button>
+						<button id="import-data" class="btn" type="button">Import…</button>
+					</div>
+					<p class="hint">Import opens the snippet manager, where the file picker stays open.</p>
+				</div>
+			</section>
+		</main>
+
+		<div id="toast" class="toast-host"></div>
+		<script type="module" src="popup.js"></script>
+	</body>
+</html>
